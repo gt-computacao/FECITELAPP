@@ -4,7 +4,10 @@ import {
   FileText, 
   CheckCircle, 
   Clock, 
-  Users
+  Users,
+  Trophy,
+  Medal,
+  Award
 } from "lucide-react";
 import { cardsService, CardsData } from "@/services/cards";
 import { useToast } from "@/hooks/use-toast";
@@ -22,7 +25,8 @@ const HomePage = () => {
       faltam_1_avaliacao: 0,
       faltam_2_avaliacoes: 0,
       faltam_3_avaliacoes: 0
-    }
+    },
+    projects: []
   });
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -282,6 +286,67 @@ const HomePage = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-ifms-green-dark flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-yellow-500" />
+            Campeões da Feira
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="animate-pulse bg-gray-200 h-16 rounded"></div>
+              ))}
+            </div>
+          ) : dashboardData.projects.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">
+              Nenhum projeto avaliado ainda
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {dashboardData.projects.map((project, index) => {
+                const getRankIcon = () => {
+                  if (index === 0) return <Trophy className="h-5 w-5 text-yellow-500" />;
+                  if (index === 1) return <Medal className="h-5 w-5 text-gray-400" />;
+                  if (index === 2) return <Award className="h-5 w-5 text-amber-600" />;
+                  return <span className="text-sm font-bold text-muted-foreground w-5">{index + 1}º</span>;
+                };
+
+                const getRankColor = () => {
+                  if (index === 0) return "bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-300";
+                  if (index === 1) return "bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300";
+                  if (index === 2) return "bg-gradient-to-r from-amber-50 to-amber-100 border-amber-300";
+                  return "bg-white border-gray-200";
+                };
+
+                return (
+                  <div
+                    key={index}
+                    className={`flex items-center gap-4 p-4 rounded-lg border-2 ${getRankColor()} transition-all hover:shadow-md`}
+                  >
+                    <div className="flex-shrink-0">
+                      {getRankIcon()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 truncate">
+                        {project.nome}
+                      </h3>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <span className="text-lg font-bold text-ifms-green-dark">
+                        {project.nota_final.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

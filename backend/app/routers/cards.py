@@ -6,7 +6,8 @@ from app.models.project import Project
 from app.models.assessment import Assessment
 from app.models.evaluator import Evaluator
 from app.models.response import Response
-from app.schemas.cards import CardsResponse
+from app.models.question import Question
+from app.schemas.cards import CardsResponse, ProjectCard
 
 router = APIRouter()
 
@@ -77,6 +78,40 @@ async def get_cards_data(db: Session = Depends(get_db)):
             soma_projetos_nao_finalizados = faltam_1_avaliacao + faltam_2_avaliacoes + faltam_3_avaliacoes
             progresso_geral = round(((total_projetos - soma_projetos_nao_finalizados) / total_projetos) * 100)
 
+        projetos = db.query(Project).filter(Project.deleted_at == None).all()
+        projects_list = []
+        
+        for projeto in projetos:
+            assessments = db.query(Assessment).filter(
+                Assessment.project_id == projeto.id,
+                Assessment.deleted_at == None
+            ).all()
+            
+            if not assessments:
+                projects_list.append(ProjectCard(nome=projeto.title, nota_final=0.0))
+                continue
+            
+            total_peso_score = 0.0
+            total_peso = 0.0
+            
+            for assessment in assessments:
+                responses = db.query(Response).join(Question).filter(
+                    Response.assessment_id == assessment.id,
+                    Response.deleted_at == None,
+                    Response.score != None,
+                    Question.deleted_at == None
+                ).all()
+                
+                for response in responses:
+                    peso = response.question.number_alternatives or 1
+                    total_peso_score += (response.score * peso)
+                    total_peso += peso
+            
+            nota_final = round(total_peso_score / total_peso, 2) if total_peso > 0 else 0.0
+            projects_list.append(ProjectCard(nome=projeto.title, nota_final=nota_final))
+
+        projects_list.sort(key=lambda x: x.nota_final, reverse=True)
+
         return CardsResponse(
             total_projetos=total_projetos,
             trabalhos_para_avaliar=projetos_sem_avaliacao,
@@ -88,7 +123,8 @@ async def get_cards_data(db: Session = Depends(get_db)):
                 "faltam_1_avaliacao": faltam_1_avaliacao,
                 "faltam_2_avaliacoes": faltam_2_avaliacoes,
                 "faltam_3_avaliacoes": faltam_3_avaliacoes
-            }
+            },
+            projects=projects_list
         )
         
     except Exception as e:

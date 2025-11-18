@@ -6,6 +6,11 @@ interface StatusAvaliacoes {
   faltam_3_avaliacoes: number;
 }
 
+interface ProjectCard {
+  nome: string;
+  nota_final: number;
+}
+
 interface CardsData {
   total_projetos: number;
   trabalhos_para_avaliar: number;
@@ -14,6 +19,7 @@ interface CardsData {
   progresso_geral: number;
   progresso_geral_inicial: number;
   status_avaliacoes: StatusAvaliacoes;
+  projects: ProjectCard[];
 }
 
 class CardsService {
@@ -34,4 +40,4 @@ class CardsService {
 }
 
 export const cardsService = new CardsService();
-export type { CardsData, StatusAvaliacoes }; 
+export type { CardsData, StatusAvaliacoes, ProjectCard }; 
