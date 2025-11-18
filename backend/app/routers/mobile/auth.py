@@ -29,7 +29,7 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
                 message="Usuário inativo. Entre em contato com o administrador."
             )
         
-        access_token_expires = timedelta(minutes=30)
+        access_token_expires = timedelta(minutes=600)
         access_token = create_access_token(
             data={"sub": str(user.id)}, expires_delta=access_token_expires
         )
