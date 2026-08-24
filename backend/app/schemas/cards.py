@@ -18,4 +18,4 @@ class CardsResponse(BaseModel):
     progresso_geral: int
     progresso_geral_inicial: int
     status_avaliacoes: StatusAvaliacoes
-    projects: List[ProjectCard] 
+    projects: List[ProjectCard]

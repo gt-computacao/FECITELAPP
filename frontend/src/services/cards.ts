@@ -40,4 +40,4 @@ class CardsService {
 }
 
 export const cardsService = new CardsService();
-export type { CardsData, StatusAvaliacoes, ProjectCard }; 
+export type { CardsData, StatusAvaliacoes, ProjectCard };

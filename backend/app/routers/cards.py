@@ -80,20 +80,20 @@ async def get_cards_data(db: Session = Depends(get_db)):
 
         projetos = db.query(Project).filter(Project.deleted_at == None).all()
         projects_list = []
-        
+
         for projeto in projetos:
             assessments = db.query(Assessment).filter(
                 Assessment.project_id == projeto.id,
                 Assessment.deleted_at == None
             ).all()
-            
+
             if not assessments:
                 projects_list.append(ProjectCard(nome=projeto.title, nota_final=0.0))
                 continue
-            
+
             total_peso_score = 0.0
             total_peso = 0.0
-            
+
             for assessment in assessments:
                 responses = db.query(Response).join(Question).filter(
                     Response.assessment_id == assessment.id,
@@ -101,12 +101,12 @@ async def get_cards_data(db: Session = Depends(get_db)):
                     Response.score != None,
                     Question.deleted_at == None
                 ).all()
-                
+
                 for response in responses:
                     peso = response.question.number_alternatives or 1
                     total_peso_score += (response.score * peso)
                     total_peso += peso
-            
+
             nota_final = round(total_peso_score / total_peso, 2) if total_peso > 0 else 0.0
             projects_list.append(ProjectCard(nome=projeto.title, nota_final=nota_final))
 
